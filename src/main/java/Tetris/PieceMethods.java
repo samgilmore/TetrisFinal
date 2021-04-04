@@ -1,7 +1,6 @@
 package Tetris;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Random;
 
 public class PieceMethods {
