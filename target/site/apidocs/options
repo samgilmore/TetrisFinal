@@ -1,0 +1,26 @@
+--class-path
+'C:/Users/Samzo/.m2/repository/org/openjfx/javafx-controls/13/javafx-controls-13.jar;C:/Users/Samzo/.m2/repository/org/openjfx/javafx-graphics/13/javafx-graphics-13.jar;C:/Users/Samzo/.m2/repository/org/openjfx/javafx-base/13/javafx-base-13.jar'
+--module-path
+'C:/Users/Samzo/.m2/repository/org/openjfx/javafx-controls/13/javafx-controls-13-win.jar;C:/Users/Samzo/.m2/repository/org/openjfx/javafx-base/13/javafx-base-13-win.jar;C:/Users/Samzo/.m2/repository/org/openjfx/javafx-graphics/13/javafx-graphics-13-win.jar'
+--patch-module
+Tetris='C:/Users/Samzo/OneDrive/Documents/NetBeansProjects/TetrisFinal/src/main/java'
+-encoding
+'UTF-8'
+-protected
+--module-source-path
+'C:/Users/Samzo/OneDrive/Documents/NetBeansProjects/TetrisFinal/target/site/apidocs/src'
+-author
+-bottom
+'Copyright &#169; 2021. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/Samzo/OneDrive/Documents/NetBeansProjects/TetrisFinal/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'TetrisFinal 1.0-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'TetrisFinal 1.0-SNAPSHOT API'

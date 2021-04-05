@@ -1,7 +1,6 @@
 package Tetris;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.scene.control.Button;
@@ -32,59 +31,71 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
+/**
+ * @version 1.0
+ * @author Sam Gilmore, Harris Khan
+ */
 public class App extends Application {
 
-    public static final int PIECE_SIZE = 30;
-    public static final int ROWS = 22;
-    public static final int COLUMNS = 10;
-    public static int[][] grid = new int [COLUMNS][ROWS];
-    public static int score = 0;
-    private static boolean running = false;
-    public static Piece fallingPiece;
-    public static Piece nextPiece = PieceMethods.createRandomPiece();
-    private static int losingTicks = 0;
-    
-    public static Pane pane = new Pane();
-    private static final Scene scene = new Scene(pane, COLUMNS * PIECE_SIZE + 250, ROWS * PIECE_SIZE);
-    public static Group gridLines = new Group();
-    private static final VBox rightPanel = new VBox();
-    private static final Rectangle back = new Rectangle();
-    public static final Rectangle topCover = new Rectangle();
-    private static final Text scoreLabel = new Text();
-    private static final HBox scoreLabelBox = new HBox();
-    private static final Text scoreText = new Text();
-    private static final HBox scoreBox = new HBox();
-    private static final Button startButton = new Button("START");
-    private static final HBox startBox = new HBox();
-    private static final Button resetButton = new Button("RESET");
-    private static final HBox resetBox = new HBox();
-    private static final Image logoImage = new Image("file:tetrislogo.png");
-    private static final ImageView logoView = new ImageView();
-    private static final HBox logoBox = new HBox();
-    public static final Image iImage = new Image("file:i.jpg");
-    public static final Image jImage = new Image("file:j.jpg");
+    public static final int PIECE_SIZE = 30; //pixel size of each square
+    public static final int ROWS = 22; //number of rows
+    public static final int COLUMNS = 10; //number of columns
+    public static int[][] grid = new int [COLUMNS][ROWS]; //a 2D array in which each element represents a square, if 1, or no square, if 0
+    public static int score = 0; //int to track score
+    private static boolean running = false; //boolean to track game running
+    public static Piece fallingPiece; //Piece object that the player controls
+    public static Piece nextPiece = PieceMethods.createRandomPiece(); //Piece object that the player will control after fallingPiece lands
+    private static int losingTicks = 0; //int used to calculate when game is over
+    public static Pane pane = new Pane(); //main Pane object in which everything is displayed
+    private static final Scene scene = new Scene(pane, COLUMNS * PIECE_SIZE + 250, ROWS * PIECE_SIZE); //Scene object that calls the pane
+
+    public static Group gridLines = new Group(); //visual gridlines on screen
+    private static final VBox rightPanel = new VBox(); //VBox pane that houses score and buttons
+    private static final Rectangle back = new Rectangle(); //background for grid
+    public static final Rectangle topCover = new Rectangle(); //small covering over the top 2 rows
+    private static final Text scoreLabel = new Text(); //displays "SCORE"
+    private static final HBox scoreLabelBox = new HBox(); //houses the score label
+    private static final Text scoreText = new Text(); //displays the score number
+    private static final HBox scoreBox = new HBox(); //houses the score number
+    private static final Button startButton = new Button("START"); //start button
+    private static final HBox startBox = new HBox(); //houses the start button
+    private static final Button resetButton = new Button("RESET"); //reset button
+    private static final HBox resetBox = new HBox(); //houses the reset button
+    private static final Image logoImage = new Image("file:tetrislogo.png"); //TETRIS Image
+    private static final ImageView logoView = new ImageView(); //View object for TETRIS image
+    private static final HBox logoBox = new HBox(); //houses the TETRIS logo view
+    public static final Image iImage = new Image("file:i.jpg"); //image files for next piece visual at top of screen
     public static final Image lImage = new Image("file:l.jpg");
     public static final Image oImage = new Image("file:o.jpg");
     public static final Image sImage = new Image("file:s.jpg");
     public static final Image tImage = new Image("file:t.jpg");
     public static final Image zImage = new Image("file:z.jpg");
-    public static final ImageView nextView = new ImageView();
-    public static final HBox nextBox = new HBox();
-    private static final Text nextText = new Text("NEXT:");
-    private static final Image gameOverImage = new Image("file:gameover.png");
-    private static final ImageView gameOverView = new ImageView();
+    public static final Image jImage = new Image("file:j.jpg");
+    public static final ImageView nextView = new ImageView(); //View object for next piece visual at top of screen
+    public static final HBox nextBox = new HBox(); //Houses the nextView and nextText objects
+    private static final Text nextText = new Text("NEXT:"); //Text "NEXT:"
+    private static final Image gameOverImage = new Image("file:gameover.png"); //game over Image
+    private static final ImageView gameOverView = new ImageView(); //View object for game over Image
     
+    /**
+     * Driver Class.
+     * Formats various JavaFX objects, adds starting Piece objects to the Pane, and runs a Timer in which the game is ran
+     * @param stage 
+     */
     @Override
     public void start(Stage stage) {
+
         //Background color for grid
         back.setWidth(COLUMNS * PIECE_SIZE);
         back.setHeight(ROWS * PIECE_SIZE);
         back.setFill(Color.BLACK);
         
+        //Formats the top cover that lays over the top 2 grid rows
         topCover.setWidth(COLUMNS * PIECE_SIZE + 1);
         topCover.setHeight(PIECE_SIZE * 2);
         topCover.setFill(Color.BLACK);
         
+        //Formats the small image of the next piece that is displayed at the top of the screen
         nextView.setPreserveRatio(true);
         nextView.setFitWidth(40);
         nextText.setFont(Font.font("Arial Black", 20));
@@ -94,6 +105,7 @@ public class App extends Application {
         nextBox.setAlignment(Pos.CENTER);
         nextBox.setMinHeight(PIECE_SIZE * 2);
         
+        //Formats the right VBox in which information and buttons are displayed
         rightPanel.setBackground(new Background(new BackgroundFill(Color.web("000930"), CornerRadii.EMPTY, Insets.EMPTY)));
         rightPanel.setMinWidth(250);
         rightPanel.setSpacing(25);
@@ -108,6 +120,7 @@ public class App extends Application {
         logoBox.setAlignment(Pos.CENTER);
         logoBox.getChildren().add(logoView);
         
+        //Formats the word "SCORE" in the right panel
         scoreLabel.setText("SCORE");
         scoreLabel.setTextAlignment(TextAlignment.CENTER);
         scoreLabel.setFont(Font.font("Arial Black", 35));
@@ -118,6 +131,7 @@ public class App extends Application {
         scoreLabelBox.setAlignment(Pos.CENTER);
         scoreLabelBox.getChildren().add(scoreLabel);
         
+        //Formats the text where the score number displays
         scoreText.setText("0");
         scoreText.setTextAlignment(TextAlignment.CENTER);
         scoreText.setFont(Font.font("Arial Black", 30));
@@ -126,29 +140,35 @@ public class App extends Application {
         scoreBox.setAlignment(Pos.CENTER);
         scoreBox.getChildren().add(scoreText);
         
+        //Formats the start button
         startButton.minWidth(40);
         startButton.setStyle("-fx-font-size: 2.5em; -fx-border-color: #111111; -fx-border-width: 2px;");
         startBox.setAlignment(Pos.CENTER);
         startBox.getChildren().add(startButton);
         startButton.setOnAction(startButtonEvent);
         
+        //Formats the reset button
         resetButton.minWidth(40);
         resetButton.setStyle("-fx-font-size: 2.5em; -fx-border-color: #111111; -fx-border-width: 2px;");
         resetBox.setAlignment(Pos.CENTER);
         resetBox.getChildren().add(resetButton);
         resetButton.setOnAction(resetButtonEvent);
         
+        //Formats the game over image that displays when game is over
         gameOverView.setImage(gameOverImage);
         gameOverView.setFitWidth(COLUMNS * PIECE_SIZE - 40);
         gameOverView.setPreserveRatio(true);
         gameOverView.setX(20);
         gameOverView.setY(ROWS * PIECE_SIZE / 2 - 75);
         
+        //Adds various javafx objects to the VBox then the VBox to the main Pane
         rightPanel.getChildren().addAll(logoBox,scoreLabelBox, scoreBox, startBox, resetBox);
         pane.getChildren().addAll(back,rightPanel);
         
+        //Assigns fallingPiece to the original nextPiece, then generates new nextPiece
         fallingPiece = nextPiece;
         nextPiece = PieceMethods.createRandomPiece();
+        //Adds the falling piece to the display Pane
         pane.getChildren().addAll(fallingPiece.getSquares().get(0),fallingPiece.getSquares().get(1),fallingPiece.getSquares().get(2),fallingPiece.getSquares().get(3)); 
         
         //Creating the Grid Lines
@@ -168,6 +188,7 @@ public class App extends Application {
         //Render grid lines then top cover over the top 2 rows
         pane.getChildren().addAll(gridLines, topCover);
         
+        //Set scene, title, then display
         stage.setScene(scene);
         stage.setTitle("TETRIS");
         stage.show();
@@ -183,42 +204,58 @@ public class App extends Application {
             }
         }
         
+        //This timer is what the game is performed on. Every 750 milliseconds, everything in the "run()" function is performed.
+        //If the boolean "running" is true, then the pieces move and the score is tracked. If the fallen piece remains at the top
+        //of the screen for too many ticks of the Timer, then the game over message is displayed and "running" becomes false.
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
                     if (running == true) {
+                        //hides the game over text
                         gameOverView.toBack();
+                        //If the fallen object remains at the top for too long, then losingTicks will increase beyond the value of "1"
                         if (fallingPiece.getSquares().get(0).getY() == 0 || fallingPiece.getSquares().get(1).getY() == 0 || 
                                 fallingPiece.getSquares().get(2).getY() == 0 || fallingPiece.getSquares().get(3).getY() == 0) {
                             losingTicks++;
                         } else {
                             losingTicks = 0;
                         }
-
+                        //if losingTicks reaches 2, the game ends
                         if (losingTicks == 2) {
                             System.out.println("Game Over");
                             running = false;
                             nextBox.getChildren().clear();
                             pane.getChildren().add(gameOverView);
-                            gameOverView.toFront();
+                            gameOverView.toFront(); //game over text is displayed
                         }
-                    
+                        
+                        //the user controls the falling piece
                         handleKeyPress(fallingPiece);
+                        //update score if row has been completed and removed
                         scoreText.setText(Integer.toString(score));
+                        //in Tetris, the piece must consistently fall down on its own
                         PieceMethods.moveDown(fallingPiece);
                     }
                 });
             }
         };
         Timer timer = new Timer();
-        timer.schedule(timerTask, 0, 750);
+        timer.schedule(timerTask, 0, 750); //750 milliseconds
     }
 
+    /**
+     *Launches the application
+     * @param args
+     */
     public static void main(String[] args) {
         launch();
     }
 
+    /**
+     *A Piece is able to move left, right, down, and rotate using WASD
+     * @param piece A piece object is controlled by the WASD keys on the keyboard with PieceMethods movement methods
+     */
     public static void handleKeyPress (Piece piece) {
                 scene.setOnKeyPressed((KeyEvent t) -> {
                     if (t.getCode() == KeyCode.A) {
@@ -233,6 +270,10 @@ public class App extends Application {
                 });
     }
     
+    /**
+     *This event starts the game by setting the "running" Boolean to true and displaying the nextPiece object
+     * 
+     */
     private static final EventHandler<ActionEvent> startButtonEvent = (ActionEvent e) -> {
             running = true;
             
@@ -268,13 +309,19 @@ public class App extends Application {
             System.out.println("Starting Game");
     };
     
+    /**
+     *This event resets the game by setting the "running" Boolean to false, clearing the Pane, and then adding back the essential display Objects
+     * 
+     */
     private static final EventHandler<ActionEvent> resetButtonEvent = new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent e) {
             running = false;
+            //Clear the pane and add back essential objects
             pane.getChildren().clear();
             pane.getChildren().addAll(back,rightPanel);
 
+            //Resetting the fallingPiece and nextPiece and adding those to the Pane
             fallingPiece = nextPiece;
             nextPiece = PieceMethods.createRandomPiece();
             pane.getChildren().addAll(fallingPiece.getSquares().get(0),fallingPiece.getSquares().get(1),fallingPiece.getSquares().get(2),fallingPiece.getSquares().get(3)); 
@@ -287,15 +334,22 @@ public class App extends Application {
                 }
             }
             
+            //Resetting the score and displaying it
             score = 0;
             scoreText.setText(Integer.toString(score));
             
+            //Resetting the next piece display box
             nextBox.getChildren().clear();
             
             System.out.println("Resetting Game");
         }
     };
     
+    /**
+     *This method visually deletes rows and shifts squares in the Pane as well as functionally deletes and shifts rows in the "grid" 2D array>
+     * It also increments the score variable depending on the number of rows deleted
+     * @param pane A Pane object that has its Square nodes manipulated
+     */
     public static void deleteRow(Pane pane) {
         ArrayList<Node> squaresInPane = new ArrayList<>(); // Arraylist for all the squares in the pane 
         ArrayList<Integer> completeRows = new  ArrayList<>(); // Arraylist to contain all the complete rows 

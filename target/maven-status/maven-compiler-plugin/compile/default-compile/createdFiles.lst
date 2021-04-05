@@ -1,5 +1,7 @@
-Tetris\PieceMethods.class
+Tetris\App$2.class
 module-info.class
 Tetris\Piece.class
+Tetris\App$1.class
+Tetris\PieceMethods.class
 Tetris\App.class
 Tetris\Square.class

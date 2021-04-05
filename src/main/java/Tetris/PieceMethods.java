@@ -3,18 +3,29 @@ package Tetris;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ *
+ * @author Sam Gilmore, Harris Khan
+ */
 public class PieceMethods {
     
-    public static final int PIECE_SIZE = App.PIECE_SIZE;
-    public static final int ROWS = App.ROWS;
-    public static final int COLUMNS = App.COLUMNS;
-    public static int[][] grid = App.grid;
-    private static final int BOARD_WIDTH = COLUMNS * PIECE_SIZE;
-    private static final int BOARD_HEIGHT = ROWS * PIECE_SIZE;
+    public static final int PIECE_SIZE = App.PIECE_SIZE; //PIECE_SIZE int from App.java
+    public static final int ROWS = App.ROWS; //ROW int from App.java
+    public static final int COLUMNS = App.COLUMNS; //COLUMNS int from App.java
+    public static int[][] grid = App.grid; //grid array from App.java
+    private static final int BOARD_WIDTH = COLUMNS * PIECE_SIZE; //BOARD_WIDTH int calculated using COLUMNS and PIECE_SIZE (pixel width)
+    private static final int BOARD_HEIGHT = ROWS * PIECE_SIZE; //BOARD_HEIGHT int calculated using ROWS and PIECE_SIZE (pixel height)
     
+    /**
+     *Creates a random piece out of 7 possible options, each with a specific spawn location and orientation
+     * @return Piece object
+     */
     public static Piece createRandomPiece() {
+       //A random number 0-6 is generated
        Random rand = new Random();
        int randomPiece = rand.nextInt(7);
+       
+       //An id and ArrayList of Square's will be returned in the Piece object
        String id;
        ArrayList<Square> squares = new ArrayList<>();
        
@@ -98,6 +109,11 @@ public class PieceMethods {
     //of '0'. Thus, as a piece is falling, we can only move it left or right if
     //all of its 4 squares are able to move into an empty, or '0', spot in the grid.
     //It also cannot move outside of the playing area.
+
+    /**
+     *This moves a Piece object leftwards visually if nothing is in the way 
+     * @param piece Piece object with position moved left a space
+     */
     public static void moveLeft(Piece piece) {
         //Continue if each square won't move off the board
         if (piece.getSquares().get(0).getX() - PIECE_SIZE >= 0 &&
@@ -119,6 +135,10 @@ public class PieceMethods {
         }
     }
     
+    /**
+     *This moves a Piece object rightwards visually if nothing is in the way
+     * @param piece Piece object with position moved right a space
+     */
     public static void moveRight(Piece piece) {
         //Continue if each square won't move off the board
         if (piece.getSquares().get(0).getX() + PIECE_SIZE <= BOARD_WIDTH - PIECE_SIZE &&
@@ -140,14 +160,21 @@ public class PieceMethods {
         }
     }
     
+    /**
+     *This moves a Piece object down if there is space. If something blocks that object, then the piece is permanently placed.
+     * The grid 2D array in App.java is also updated to hold values of 1 where this piece now lies. A new falling object will now be
+     * controlled by the player and a new next piece will be generated.
+     * @param piece Piece object moved downwards a space
+     */
     public static void moveDown(Piece piece) {
+        //Accounts for the bottom of the board
         if (piece.getSquares().get(0).getY() + PIECE_SIZE <= BOARD_HEIGHT - PIECE_SIZE &&
                 piece.getSquares().get(1).getY() + PIECE_SIZE <= BOARD_HEIGHT - PIECE_SIZE &&
                 piece.getSquares().get(2).getY() + PIECE_SIZE <= BOARD_HEIGHT - PIECE_SIZE &&
                 piece.getSquares().get(3).getY() + PIECE_SIZE <= BOARD_HEIGHT - PIECE_SIZE) {
            
             //Next, find the value of the potential location in the grid array for each square in the piece.
-            //If the location is empty for every square, aka == 0, then move piece visually.
+            //If the location is empty for every square, == 0, then move piece visually.
             //We don't need to update grid array yet because the piece hasn't landed.
             
             int potentialOne = grid[(int) piece.getSquares().get(0).getX() / PIECE_SIZE ][(int) piece.getSquares().get(0).getY() / PIECE_SIZE + 1];
@@ -210,6 +237,10 @@ public class PieceMethods {
         }
     }
     
+    /**
+     *This returns a Boolean that determines whether a piece lies below the current position of the falling piece
+     * @return Boolean isPieceBelow
+     */
     private static boolean isPieceBelow(Piece piece) {
         boolean isPieceBelow = false;
         for (int i = 0; i < piece.getSquares().size(); i++) {
@@ -220,6 +251,13 @@ public class PieceMethods {
         return isPieceBelow;
     }
     
+    /**
+     *This returns a Boolean that determines whether a piece or part of the board will be in the way of the movement of a single Square
+     * @param square Square square
+     * @param xMove int xMove
+     * @param yMove int yMove
+     * @return Boolean
+     */
     public static boolean isPieceEmpty(Square square, int xMove, int yMove) {
         boolean isXContained = false; 
         boolean isYContained = false;
@@ -240,6 +278,10 @@ public class PieceMethods {
         return isXContained && isYContained && App.grid[(int) square.getX() / PIECE_SIZE + xMove][(int) square.getY() / PIECE_SIZE - yMove] == 0; 
     }
     
+    /**
+     *This moves a Square object rightwards a certain number of times if in the playable area
+     * 
+     */
     private static void moveSquareRight(Square square, int repetitions) {
         for(int i = 0; i < repetitions; i++) {
             if (square.getX() <= BOARD_WIDTH - 2 * PIECE_SIZE) {
@@ -248,6 +290,10 @@ public class PieceMethods {
         }
     }
 
+    /**
+     *This moves a Square object leftwards a certain number of times if in the playable area
+     * 
+     */
     private static void  moveSquareLeft(Square square, int repetitions) {
         for (int i = 0; i < repetitions; i++) {
             if (square.getX() >= PIECE_SIZE) {
@@ -256,6 +302,10 @@ public class PieceMethods {
         }
     }
 
+    /**
+     *This moves a Square object upwards a certain number of times if in the playable area
+     * 
+     */
     private static void moveSquareUp(Square square, int repetitions) {
         for (int i = 0; i < repetitions; i++) {
             if (square.getY() > PIECE_SIZE) {
@@ -264,6 +314,10 @@ public class PieceMethods {
         }
     }
 
+    /**
+     *This moves a Square object downwards a certain number of times if in the playable area
+     * 
+     */
     private static void moveSquareDown(Square square, int repetitions) {
         for (int i = 0; i < repetitions; i++) {
             if (square.getY() < BOARD_HEIGHT - PIECE_SIZE) {
@@ -272,9 +326,15 @@ public class PieceMethods {
         }
     }
     
+    /**
+     *This takes a Piece and moves each individual square depending on the current orientation of the piece.
+     * TETRIS pieces have a very particular way of rotating.
+     * @param piece Piece object
+     */
     public static void rotatePiece(Piece piece) {
-        int orientationOfPiece = piece.getOrientation();
+        int orientationOfPiece = piece.getOrientation(); //pulls the current orientation of the piece
         
+        //Depending on the piece id and the current orientation, the squares will move in a variety of directions
         switch(piece.getId()) {
             case "I": {
                 if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 2, 1) && isPieceEmpty(piece.getSquares().get(1), 1, 0) &&  isPieceEmpty(piece.getSquares().get(2), 0, -2) && isPieceEmpty(piece.getSquares().get(3), -1, -2)) {
