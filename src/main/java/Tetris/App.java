@@ -1,5 +1,7 @@
 package Tetris;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.scene.control.Button;
@@ -10,6 +12,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -185,6 +188,7 @@ public class App extends Application {
             public void run() {
                 Platform.runLater(() -> {
                     if (running == true) {
+                        gameOverView.toBack();
                         if (fallingPiece.getSquares().get(0).getY() == 0 || fallingPiece.getSquares().get(1).getY() == 0 || 
                                 fallingPiece.getSquares().get(2).getY() == 0 || fallingPiece.getSquares().get(3).getY() == 0) {
                             losingTicks++;
@@ -196,11 +200,11 @@ public class App extends Application {
                             System.out.println("Game Over");
                             running = false;
                             nextBox.getChildren().clear();
-                            //pane.getChildren().add(gameOverView);
+                            pane.getChildren().add(gameOverView);
+                            gameOverView.toFront();
                         }
                     
                         handleKeyPress(fallingPiece);
-                        score++;
                         scoreText.setText(Integer.toString(score));
                         PieceMethods.moveDown(fallingPiece);
                     }
@@ -209,7 +213,6 @@ public class App extends Application {
         };
         Timer timer = new Timer();
         timer.schedule(timerTask, 0, 750);
-        
     }
 
     public static void main(String[] args) {
@@ -292,5 +295,99 @@ public class App extends Application {
             System.out.println("Resetting Game");
         }
     };
+    
+    public static void deleteRow(Pane pane) {
+        ArrayList<Node> squaresInPane = new ArrayList<>(); // Arraylist for all the squares in the pane 
+        ArrayList<Integer> completeRows = new  ArrayList<>(); // Arraylist to contain all the complete rows 
+        ArrayList<Node> preshiftSquares = new ArrayList<>(); // Arraylist to contain squares after row clear but before shift
+        ArrayList<Node> postshiftSquares = new ArrayList<>(); // Arraylist to contain squares after shift
+        boolean isFull; // boolean for if a row is full 
+        
+        // iterates over each row, if any value in row is empty, full is equal to false
+        for (int i = 0; i < ROWS; i++) {
+            isFull = true;
+            for(int j = 0; j < COLUMNS; j++) {
+                if(grid[j][i] == 0) {
+                    isFull = false;
+                }
+            }
+            // if full, then it is added to the list of rows that are full 
+            if (isFull) {
+                completeRows.add(i);
+            }
+        }
+        
+        // dealing with rows that are full 
+        if (completeRows.size() > 0) {
+            
+            //Calculating score based on how many rows are completed at one time
+            switch (completeRows.size()) {
+                case 1:
+                    score += 40;
+                    break;
+                case 2:
+                    score += 100;
+                    break;
+                case 3:
+                    score += 300;
+                    break;
+                case 4:
+                    score += 1200;
+                    break;
+                default:
+                    break;
+            }
+            
+            do {
+                for (int i = 0; i < pane.getChildren().size(); i++) {
+                    if (pane.getChildren().get(i) instanceof Square) {  // extracts each instance of a square in the pane window and puts it into 
+                        squaresInPane.add(pane.getChildren().get(i));   // the squaresInPane arraylist
+                    }
+                }
+                
+                // visually removes squares on completed rows, if a square is not on a completed row, it is added to the remaininSquare arraylist
+                for (int i = 0; i < squaresInPane.size(); i++) {
+                    Square squareTemp = (Square) squaresInPane.get(i); // creates a temporary square object to extract x and y val of node
+                    if(squareTemp.getY() == completeRows.get(0) * PIECE_SIZE) { // if the square is in a row that needs to be removed, the square is removed from pane
+                        grid[(int) squareTemp.getX()/PIECE_SIZE][(int) squareTemp.getY() / PIECE_SIZE] = 0; 
+                        pane.getChildren().remove(squaresInPane.get(i));  
+                    } else {
+                        preshiftSquares.add(squaresInPane.get(i)); // adds square not in a completed row to the remaining square arraylist
+                    }
+                }
+                
+                // shifts value in the grid, then shifts those squares visually as well 
+                for (int i = 0; i < preshiftSquares.size(); i++) {
+                    Square squareTemp = (Square) preshiftSquares.get(i); // creates a temporary square object to extract x and y val of node
+                    if(squareTemp.getY() < completeRows.get(0) * PIECE_SIZE) {
+                        grid[(int) squareTemp.getX() / PIECE_SIZE][(int) squareTemp.getY()/PIECE_SIZE] = 0; // old location is changed to 0 
+                        squareTemp.setY(squareTemp.getY() + PIECE_SIZE); // shifts visually the block 
+                    }
+                }
+                
+                // adds the remaining visual squares to the postshift squares arraylist 
+                for (int i = 0; i < pane.getChildren().size(); i++) { 
+                    if(pane.getChildren().get(i) instanceof Square) { 
+                        postshiftSquares.add(pane.getChildren().get(i)); 
+                        
+                    }
+                }
+                
+                // functionally updates the grid to add changes 
+                for (int i = 0; i < postshiftSquares.size(); i++) { 
+                    Square squareTemp = (Square) postshiftSquares.get(i); 
+                    try {
+                    grid[(int) squareTemp.getX() / PIECE_SIZE][(int) squareTemp.getY() / PIECE_SIZE] = 1; 
+                    } catch (ArrayIndexOutOfBoundsException e) {
+					}
+                }
+                
+                completeRows.remove(0); // removes completed rows that have already been addressed 
+                squaresInPane.clear(); // resets squaresInPane
+                preshiftSquares.clear(); // resets preshift squares 
+                postshiftSquares.clear(); // resets preshiftSquares     
+            } while (completeRows.size() > 0); 
+        }
+    }
     
 }

@@ -170,6 +170,7 @@ public class PieceMethods {
                 grid[(int) piece.getSquares().get(i).getX() / PIECE_SIZE][(int) piece.getSquares().get(i).getY() / PIECE_SIZE] = 1;
             }
             //Since piece has landed, we need to check if a row has been completed
+            App.deleteRow(App.pane);
             
             //Next, we need to generate a new piece now that the old one has landed as well as take control of the new falling piece.
             App.fallingPiece = App.nextPiece;

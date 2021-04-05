@@ -48,7 +48,6 @@ public class Piece {
         for (int i = 0; i < 4; i++) {
             squares.get(i).setFill(color);
         }
-        
     }
 
     public void setId(String id) {
