@@ -12,7 +12,7 @@ public class Piece {
     
     //In Tetris, each piece can be rotated into 4 different orientations.
     //This int identifies which orientation the piece is in.
-    public int orientation;
+    private int orientation;
 
     //Default constructor
     public Piece() {

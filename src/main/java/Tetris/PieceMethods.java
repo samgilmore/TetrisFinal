@@ -150,10 +150,10 @@ public class PieceMethods {
             //If the location is empty for every square, aka == 0, then move piece visually.
             //We don't need to update grid array yet because the piece hasn't landed.
             
-            int potentialOne = grid[(int) piece.getSquares().get(0).getX() / PIECE_SIZE ][(int) piece.getSquares().get(0).getY() / PIECE_SIZE];
-            int potentialTwo = grid[(int) piece.getSquares().get(1).getX() / PIECE_SIZE ][(int) piece.getSquares().get(1).getY() / PIECE_SIZE];
-            int potentialThree = grid[(int) piece.getSquares().get(2).getX() / PIECE_SIZE ][(int) piece.getSquares().get(2).getY() / PIECE_SIZE];
-            int potentialFour = grid[(int) piece.getSquares().get(3).getX() / PIECE_SIZE ][(int) piece.getSquares().get(3).getY() / PIECE_SIZE];
+            int potentialOne = grid[(int) piece.getSquares().get(0).getX() / PIECE_SIZE ][(int) piece.getSquares().get(0).getY() / PIECE_SIZE + 1];
+            int potentialTwo = grid[(int) piece.getSquares().get(1).getX() / PIECE_SIZE ][(int) piece.getSquares().get(1).getY() / PIECE_SIZE + 1];
+            int potentialThree = grid[(int) piece.getSquares().get(2).getX() / PIECE_SIZE ][(int) piece.getSquares().get(2).getY() / PIECE_SIZE + 1];
+            int potentialFour = grid[(int) piece.getSquares().get(3).getX() / PIECE_SIZE ][(int) piece.getSquares().get(3).getY() / PIECE_SIZE + 1];
             
             if (potentialOne == 0 && potentialTwo == 0 && potentialThree == 0 && potentialFour == 0) {
                 piece.getSquares().get(0).setY(piece.getSquares().get(0).getY() + PIECE_SIZE);
@@ -162,7 +162,7 @@ public class PieceMethods {
                 piece.getSquares().get(3).setY(piece.getSquares().get(3).getY() + PIECE_SIZE);
             }  
         }
-        // generate a new piece once the current piece has landed
+        // Now, generate a new piece once the current piece has landed
         
         if (piece.getSquares().get(0).getY() == BOARD_HEIGHT - PIECE_SIZE || piece.getSquares().get(1).getY() == BOARD_HEIGHT - PIECE_SIZE ||
                 piece.getSquares().get(2).getY() == BOARD_HEIGHT - PIECE_SIZE || piece.getSquares().get(3).getY() == BOARD_HEIGHT - PIECE_SIZE || isPieceBelow(piece)) {
@@ -176,9 +176,37 @@ public class PieceMethods {
             App.nextPiece = createRandomPiece();
             App.pane.getChildren().addAll(App.fallingPiece.getSquares().get(0),App.fallingPiece.getSquares().get(1),App.fallingPiece.getSquares().get(2),App.fallingPiece.getSquares().get(3)); 
             App.gridLines.toFront();
+            App.topCover.toFront();
             App.handleKeyPress(App.fallingPiece);
+            
+            //Now that nextPiece has been updated, we need to update the next piece image
+            switch (App.nextPiece.getId()) {
+                case "I":
+                    App.nextView.setImage(App.iImage);
+                    break;
+                case "J":
+                    App.nextView.setImage(App.jImage);
+                    break;
+                case "L":
+                    App.nextView.setImage(App.lImage);
+                    break;
+                case "O":
+                    App.nextView.setImage(App.oImage);
+                    break;
+                case "S":
+                    App.nextView.setImage(App.sImage);
+                    break;
+                case "T":
+                    App.nextView.setImage(App.tImage);
+                    break;
+                case "Z":
+                    App.nextView.setImage(App.zImage);
+                    break;
+                default:
+                    break;
+            }
+            App.nextBox.toFront();          
         }
-        
     }
     
     private static boolean isPieceBelow(Piece piece) {
@@ -190,4 +218,309 @@ public class PieceMethods {
         }
         return isPieceBelow;
     }
+    
+    public static boolean isPieceEmpty(Square square, int xMove, int yMove) {
+        boolean isXContained = false; 
+        boolean isYContained = false;
+        //logic to ensure each piece is within the window if shifted 
+        if(xMove >= 0) {
+            isXContained = square.getX() + xMove * PIECE_SIZE <= BOARD_WIDTH - PIECE_SIZE; 
+        }
+        else if(xMove < 0) {
+            isXContained = square.getX() + xMove * PIECE_SIZE >= 0; 
+        }
+        
+        if (yMove >= 0) {
+            isYContained = square.getY() - yMove * PIECE_SIZE > 0; 
+        }
+        else if (yMove < 0) {
+            isYContained = square.getY() + yMove * PIECE_SIZE < BOARD_HEIGHT; 
+        }
+        return isXContained && isYContained && App.grid[(int) square.getX() / PIECE_SIZE + xMove][(int) square.getY() / PIECE_SIZE - yMove] == 0; 
+    }
+    
+    private static void moveSquareRight(Square square, int repetitions) {
+        for(int i = 0; i < repetitions; i++) {
+            if (square.getX() <= BOARD_WIDTH - 2 * PIECE_SIZE) {
+            square.setX(square.getX() + PIECE_SIZE);
+            }
+        }
+    }
+
+    private static void  moveSquareLeft(Square square, int repetitions) {
+        for (int i = 0; i < repetitions; i++) {
+            if (square.getX() >= PIECE_SIZE) {
+                square.setX(square.getX() - PIECE_SIZE);
+            }
+        }
+    }
+
+    private static void moveSquareUp(Square square, int repetitions) {
+        for (int i = 0; i < repetitions; i++) {
+            if (square.getY() > PIECE_SIZE) {
+                square.setY(square.getY() - PIECE_SIZE);
+            }
+        }
+    }
+
+    private static void moveSquareDown(Square square, int repetitions) {
+        for (int i = 0; i < repetitions; i++) {
+            if (square.getY() < BOARD_HEIGHT - PIECE_SIZE) {
+                square.setY(square.getY() + PIECE_SIZE);
+            }
+        }
+    }
+    
+    public static void rotatePiece(Piece piece) {
+        int orientationOfPiece = piece.getOrientation();
+        
+        switch(piece.getId()) {
+            case "I": {
+                if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 2, 1) && isPieceEmpty(piece.getSquares().get(1), 1, 0) &&  isPieceEmpty(piece.getSquares().get(2), 0, -2) && isPieceEmpty(piece.getSquares().get(3), -1, -2)) {
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(0), 2);
+                    moveSquareRight(piece.getSquares().get(1), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(3), 2);        
+                    moveSquareLeft(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 1, -2) && isPieceEmpty(piece.getSquares().get(1), 0, -1) &&  isPieceEmpty(piece.getSquares().get(2), 0, -1) && isPieceEmpty(piece.getSquares().get(3), -2, 1)) {
+                    moveSquareDown(piece.getSquares().get(0), 2);
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(3), 1);        
+                    moveSquareLeft(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -2, -1) && isPieceEmpty(piece.getSquares().get(1), -1, 0) &&  isPieceEmpty(piece.getSquares().get(2), 0, 1) && isPieceEmpty(piece.getSquares().get(3), 1, 2)) {
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(0), 2);
+                    moveSquareLeft(piece.getSquares().get(1), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(3), 2);        
+                    moveSquareRight(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), -1, 2) && isPieceEmpty(piece.getSquares().get(1), 0, 1) &&  isPieceEmpty(piece.getSquares().get(2), 1, 0) && isPieceEmpty(piece.getSquares().get(3), 2, -1)) {
+                    moveSquareUp(piece.getSquares().get(0), 2);
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(3), 1);        
+                    moveSquareRight(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                break; 
+            }
+            case "Z": {
+                 if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 2, 0) && isPieceEmpty(piece.getSquares().get(1), 1, -1) && isPieceEmpty(piece.getSquares().get(3), -1, -1)) {
+                    moveSquareRight(piece.getSquares().get(0), 2);
+                    moveSquareDown(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);        
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                 if(orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 0, -2) && isPieceEmpty(piece.getSquares().get(1), -1, -1) && isPieceEmpty(piece.getSquares().get(3), -1, 1)) {
+                    moveSquareDown(piece.getSquares().get(0), 2);
+                    moveSquareDown(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);        
+                    moveSquareUp(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                 if(orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -2, 0) && isPieceEmpty(piece.getSquares().get(1), -1, 1) && isPieceEmpty(piece.getSquares().get(3), 1, 1)) {
+                    moveSquareLeft(piece.getSquares().get(0), 2);
+                    moveSquareLeft(piece.getSquares().get(1), 1);
+                    moveSquareUp(piece.getSquares().get(1), 1);
+                    moveSquareUp(piece.getSquares().get(3), 1);        
+                    moveSquareRight(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                 if(orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), 0, 2) && isPieceEmpty(piece.getSquares().get(1), 1, 1) && isPieceEmpty(piece.getSquares().get(3), 1, -1)) {
+                    moveSquareUp(piece.getSquares().get(0), 2);
+                    moveSquareUp(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(3), 1);        
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                break; 
+            }
+            case "T": {
+                if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 1, 1) && isPieceEmpty(piece.getSquares().get(2), 1, -1) && isPieceEmpty(piece.getSquares().get(3), -1, -1)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);        
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 1, -1) && isPieceEmpty(piece.getSquares().get(2), -1, -1) && isPieceEmpty(piece.getSquares().get(3), -1, 1)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);        
+                    moveSquareUp(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -1, -1) && isPieceEmpty(piece.getSquares().get(2), -1, 1) && isPieceEmpty(piece.getSquares().get(3), 1, 1)) {
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareRight(piece.getSquares().get(3), 1);        
+                    moveSquareUp(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), -1, 1) && isPieceEmpty(piece.getSquares().get(2), 1, 1) && isPieceEmpty(piece.getSquares().get(3), 1, -1)) {
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareRight(piece.getSquares().get(3), 1);        
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                break; 
+            }
+            case "S": {
+                if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 1, 1) && isPieceEmpty(piece.getSquares().get(2), 1, -1) && isPieceEmpty(piece.getSquares().get(3), 0, -2)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);        
+                    moveSquareDown(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 1, -1) && isPieceEmpty(piece.getSquares().get(2), -1, -1) && isPieceEmpty(piece.getSquares().get(3), -2, 0)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 2);        
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -1, -1) && isPieceEmpty(piece.getSquares().get(2), -1, 1) && isPieceEmpty(piece.getSquares().get(3), 0, 2)) {
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(3), 2);        
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), -1, 1) && isPieceEmpty(piece.getSquares().get(2), 1, 1) && isPieceEmpty(piece.getSquares().get(3), 2, 0)) {
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareRight(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                break; 
+            }
+            case "O": {
+                break; 
+            }
+            case "L": {
+                if(orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 1, 1) && isPieceEmpty(piece.getSquares().get(2), -1, -1) && isPieceEmpty(piece.getSquares().get(3), 0, -2)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 1, -1) && isPieceEmpty(piece.getSquares().get(2), -1, 1) && isPieceEmpty(piece.getSquares().get(3), -2, 0)) {
+                    moveSquareRight(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareLeft(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -1, -1) && isPieceEmpty(piece.getSquares().get(2), 1, 1) && isPieceEmpty(piece.getSquares().get(3), 0, 2)) {
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareDown(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(2), 1);
+                    moveSquareUp(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                if(orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), -1, 1) && isPieceEmpty(piece.getSquares().get(2), 1, -1) && isPieceEmpty(piece.getSquares().get(3), 2, 0)) {
+                    moveSquareLeft(piece.getSquares().get(0), 1);
+                    moveSquareUp(piece.getSquares().get(0), 1);
+                    moveSquareRight(piece.getSquares().get(2), 1);
+                    moveSquareDown(piece.getSquares().get(2), 1);
+                    moveSquareRight(piece.getSquares().get(3), 2);
+                    piece.changeOrientation();
+                    break;
+                }
+                break; 
+            }
+            case "J": {
+                if (orientationOfPiece == 1 && isPieceEmpty(piece.getSquares().get(0), 2, 0) && isPieceEmpty(piece.getSquares().get(1), 1, 1) && isPieceEmpty(piece.getSquares().get(3), -1, -1)) {
+                    moveSquareRight(piece.getSquares().get(0), 2);
+                    moveSquareUp(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(1), 1);
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if (orientationOfPiece == 2 && isPieceEmpty(piece.getSquares().get(0), 0, -2) && isPieceEmpty(piece.getSquares().get(1), 1, -1) && isPieceEmpty(piece.getSquares().get(3), -1, 1)) {
+                    moveSquareDown(piece.getSquares().get(0), 2);
+                    moveSquareDown(piece.getSquares().get(1), 1);
+                    moveSquareRight(piece.getSquares().get(1), 1);
+                    moveSquareUp(piece.getSquares().get(3), 1);
+                    moveSquareLeft(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if (orientationOfPiece == 3 && isPieceEmpty(piece.getSquares().get(0), -2, 0) && isPieceEmpty(piece.getSquares().get(1), -1, -1) && isPieceEmpty(piece.getSquares().get(3), 1, 1)) {
+                    moveSquareLeft(piece.getSquares().get(0), 2);
+                    moveSquareDown(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(1), 1);
+                    moveSquareUp(piece.getSquares().get(3), 1);
+                    moveSquareRight(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                if (orientationOfPiece == 4 && isPieceEmpty(piece.getSquares().get(0), 0, 2) && isPieceEmpty(piece.getSquares().get(1), -1, 1) && isPieceEmpty(piece.getSquares().get(3), 1, -1)) {
+                    moveSquareUp(piece.getSquares().get(0), 2);
+                    moveSquareUp(piece.getSquares().get(1), 1);
+                    moveSquareLeft(piece.getSquares().get(1), 1);
+                    moveSquareDown(piece.getSquares().get(3), 1);
+                    moveSquareRight(piece.getSquares().get(3), 1);
+                    piece.changeOrientation();
+                    break;
+                }
+                break;
+            }
+        }
+    }
+    
 }
